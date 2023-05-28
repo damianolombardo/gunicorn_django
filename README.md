@@ -12,6 +12,7 @@ This repository provides a Docker configuration for setting up a Django developm
 
 ## Getting Started
 
+```
 docker run
   -d
   --name='djangosite'
@@ -22,7 +23,7 @@ docker run
   -e 'POSTGRES_HOST'='<posgres_host>'
   -e 'WSGI_MODULE'='mysite'
   -v '/path/to/mysite/':'/mnt/app':'rw' 'ghcr.io/damianolombardo/gunicorn_django:main' 
-
+```
 
 ## Customization
 
