@@ -25,5 +25,5 @@ ENV POSTGRES_PASSWORD postgrespassword
 ENV POSTGRES_HOST postgreshost
 
 # Set the command to run Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--chdir", "/mnt/app", "${WSGI_MODULE}.wsgi:application"]
+CMD gunicorn --bind 0.0.0.0:8000 --chdir /mnt/app ${WSGI_MODULE}.wsgi:application
 
