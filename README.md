@@ -1,8 +1,3 @@
-# gunicorn_django
-
-Certainly! Here's an example of a `README.md` file you can include in your GitHub repository to describe your Django development container:
-
-```markdown
 # Django Development Container with Gunicorn
 
 This repository provides a Docker configuration for setting up a Django development environment with Gunicorn as the web server. It allows you to easily containerize your Django project and run it in a self-contained environment.
