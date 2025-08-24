@@ -27,5 +27,5 @@ ENV POSTGRES_HOST postgreshost
 ENV WSGI_MODULE mysite
 
 # Set the command to run Gunicorn
-CMD gunicorn --bind 0.0.0.0:8000 --chdir /mnt/app ${WSGI_MODULE}.wsgi:application
+CMD bash /mnt/app/setup.sh && gunicorn --bind 0.0.0.0:8000 --chdir /mnt/app ${WSGI_MODULE}.wsgi:application
 
