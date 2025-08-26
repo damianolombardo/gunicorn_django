@@ -1,31 +1,21 @@
-FROM python:latest
+FROM python
 
-# Set the working directory in the container
-WORKDIR /app
+WORKDIR /runner
 
-# Copy the requirements file to the container
-COPY requirements.txt .
+# Install system dependencies (only what's needed for Postgres optional use)
+RUN apt-get update && apt-get install -y \
+    libpq-dev gcc netcat-openbsd && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install the project dependencies
-RUN pip install -r requirements.txt
+# Install Gunicorn + psycopg2 (binary so optional)
+RUN pip install --no-cache-dir gunicorn psycopg2-binary
 
-# Install PostgreSQL client libraries
-RUN apt-get update && apt-get install -y libpq-dev
+# Default envs (override at runtime)
+ENV APP_PATH=/mnt/app \
+    WSGI_MODULE=mysite
 
-# Copy the project code to the container
-COPY . .
+COPY entrypoint.sh /runner/entrypoint.sh
+RUN chmod +x /runner/entrypoint.sh
 
-# Expose the port that Gunicorn will use
 EXPOSE 8000
-
-# Set environment variables for PostgreSQL connection
-ENV POSTGRES_DB postgresdb
-ENV POSTGRES_USER postgresuser
-ENV POSTGRES_PASSWORD postgrespassword
-ENV POSTGRES_HOST postgreshost
-
-ENV WSGI_MODULE mysite
-
-# Set the command to run Gunicorn
-CMD bash /mnt/app/setup.sh && gunicorn --bind 0.0.0.0:8000 --chdir /mnt/app ${WSGI_MODULE}.wsgi:application
-
+CMD ["/runner/entrypoint.sh"]
