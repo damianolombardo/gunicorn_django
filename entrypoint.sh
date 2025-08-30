@@ -25,4 +25,4 @@ if [ -f "manage.py" ]; then
 fi
 
 echo "✅ Setup complete, launching Gunicorn..."
-exec gunicorn --bind 0.0.0.0:8000 "${WSGI_MODULE}.wsgi:application"
+exec gunicorn --bind 0.0.0.0:8000 --error-logfile -  --capture-output  --log-level info "${WSGI_MODULE}.wsgi:application"
