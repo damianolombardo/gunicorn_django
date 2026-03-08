@@ -1,41 +1,65 @@
 # Django Development Container with Gunicorn
 
-This repository provides a Docker configuration for setting up a Django development environment with Gunicorn as the web server. It allows you to easily containerize your Django project and run it in a self-contained environment.
+A Docker container for running Django applications with Gunicorn. Mount your Django project, set a few environment variables, and it handles the rest — dependency installation, migrations, static files, and serving.
 
 ## Features
 
-- Uses the base Python Docker image for simplicity and flexibility.
-- Configures Gunicorn as the WSGI HTTP server for serving your Django application.
-- Supports PostgreSQL compatibility with `psycopg2-binary` package.
-- Enables easy development and deployment of Django applications.
+- Python base image with Gunicorn pre-installed
+- Automatically installs your app's `requirements.txt` on startup
+- Runs `migrate` and `collectstatic` automatically if `manage.py` is present
+- Supports an optional `setup.sh` hook for custom pre-startup logic
+- PostgreSQL-ready with `psycopg2-binary` included
+- Logs to stdout/stderr for easy container log access
 
+## Quick Start
 
-## Getting Started
-
+```bash
+docker run -d \
+  --name djangosite \
+  -p 8000:8000 \
+  -e WSGI_MODULE=mysite \
+  -e POSTGRES_DB=mydb \
+  -e POSTGRES_USER=myuser \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_HOST=db \
+  -v /path/to/mysite:/mnt/app:rw \
+  ghcr.io/damianolombardo/gunicorn_django:main
 ```
-docker run
-  -d
-  --name='djangosite'
-  -e 'TCP_PORT_8000'='8000'
-  -e 'POSTGRES_DB'='<djangosite>'
-  -e 'POSTGRES_USER'='<djangosite>'
-  -e 'POSTGRES_PASSWORD'='<djangosite>'
-  -e 'POSTGRES_HOST'='<posgres_host>'
-  -e 'WSGI_MODULE'='mysite'
-  -v '/path/to/mysite/':'/mnt/app':'rw' 'ghcr.io/damianolombardo/gunicorn_django:main' 
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `WSGI_MODULE` | `mysite` | Django project name (used as `<module>.wsgi:application`) |
+| `APP_PATH` | `/mnt/app` | Path inside the container where your app is mounted |
+| `POSTGRES_DB` | — | PostgreSQL database name |
+| `POSTGRES_USER` | — | PostgreSQL username |
+| `POSTGRES_PASSWORD` | — | PostgreSQL password |
+| `POSTGRES_HOST` | — | PostgreSQL host |
+| `GUNICORN_RELOAD` | — | Set to `true` to enable Gunicorn auto-reload on code changes (recommended for development) |
+
+## Startup Behavior
+
+On each container start, the entrypoint:
+
+1. Runs `$APP_PATH/setup.sh` if it exists (useful for custom pre-startup steps)
+2. Installs `requirements.txt` from your app if present
+3. Runs `python manage.py migrate --noinput`
+4. Runs `python manage.py collectstatic --noinput`
+5. Starts Gunicorn on `0.0.0.0:8000`
+
+## Custom Commands
+
+You can override the default Gunicorn startup by passing a command:
+
+```bash
+docker run ... ghcr.io/damianolombardo/gunicorn_django:main python manage.py shell
 ```
-
-## Customization
-
-- **Project Configuration**: Modify the environment variable `WSGI_MODULE` with the name of your Django project.
-
-- **Database Configuration**: Modify the environment variables (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_HOST`) to match your PostgreSQL database settings.
 
 ## Contributing
 
-Contributions are welcome! If you encounter any issues or have suggestions for improvements, please feel free to open an issue or submit a pull request.
+Contributions are welcome! Open an issue or submit a pull request for bug reports or improvements.
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-

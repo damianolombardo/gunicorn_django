@@ -24,5 +24,11 @@ if [ -f "manage.py" ]; then
     python manage.py collectstatic --noinput || true
 fi
 
-echo "✅ Setup complete, launching Gunicorn..."
-exec gunicorn --bind 0.0.0.0:8000 --error-logfile -  --capture-output  --log-level info "${WSGI_MODULE}.wsgi:application"
+echo "✅ Setup complete, launching..."
+if [ $# -gt 0 ]; then
+    exec "$@"
+else
+    RELOAD_FLAG=""
+    [ "${GUNICORN_RELOAD}" = "true" ] && RELOAD_FLAG="--reload"
+    exec gunicorn --bind 0.0.0.0:8000 $RELOAD_FLAG --error-logfile - --capture-output --log-level info "${WSGI_MODULE}.wsgi:application"
+fi
