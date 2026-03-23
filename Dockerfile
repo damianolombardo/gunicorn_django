@@ -4,7 +4,7 @@ WORKDIR /runner
 
 # Install system dependencies (only what's needed for Postgres optional use)
 RUN apt-get update && apt-get install -y \
-    libpq-dev gcc netcat-openbsd && \
+    libpq-dev gcc netcat-openbsd git && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Gunicorn + psycopg2 (binary so optional)
